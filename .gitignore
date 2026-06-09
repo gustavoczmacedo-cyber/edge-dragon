@@ -1,0 +1,9 @@
+history.db
+*.db
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.pem
+.env
+.DS_Store

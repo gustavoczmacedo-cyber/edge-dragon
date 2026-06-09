@@ -1,0 +1,15 @@
+[Unit]
+Description=Dragon Telemetry — Processamento na Nuvem
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=azureuser
+WorkingDirectory=/home/azureuser/dragon-python
+ExecStart=/usr/bin/python3 /home/azureuser/dragon-python/dragon_python.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

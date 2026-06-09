@@ -1,0 +1,117 @@
+{
+  "info": {
+    "name": "Dragon Telemetry — FIWARE",
+    "_postman_id": "dragon-fiware-2026",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "HOST",  "value": "SEU_IP_DA_VM" },
+    { "key": "ORION", "value": "http://SEU_IP_DA_VM:1026" },
+    { "key": "IOTA",  "value": "http://SEU_IP_DA_VM:4041" }
+  ],
+  "item": [
+    {
+      "name": "1. Verificar Orion",
+      "request": {
+        "method": "GET",
+        "url": "{{ORION}}/version",
+        "description": "Confirma que o Orion está rodando. Deve retornar versão."
+      }
+    },
+    {
+      "name": "2.1 Criar Service Group",
+      "request": {
+        "method": "POST",
+        "url": "{{IOTA}}/iot/services",
+        "header": [
+          { "key": "fiware-service",     "value": "dragon" },
+          { "key": "fiware-servicepath", "value": "/" },
+          { "key": "Content-Type",       "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"services\": [{\n    \"apikey\": \"dragon2026\",\n    \"cbroker\": \"http://orion:1026\",\n    \"entity_type\": \"DragonCapsule\",\n    \"resource\": \"/iot/d\"\n  }]\n}"
+        }
+      }
+    },
+    {
+      "name": "2.2 Registrar Dispositivo",
+      "request": {
+        "method": "POST",
+        "url": "{{IOTA}}/iot/devices",
+        "header": [
+          { "key": "fiware-service",     "value": "dragon" },
+          { "key": "fiware-servicepath", "value": "/" },
+          { "key": "Content-Type",       "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"devices\": [{\n    \"device_id\": \"dragon-esp32-001\",\n    \"entity_name\": \"urn:ngsi-ld:DragonCapsule:001\",\n    \"entity_type\": \"DragonCapsule\",\n    \"protocol\": \"PDI-IoTA-UltraLight\",\n    \"transport\": \"MQTT\",\n    \"attributes\": [\n      { \"object_id\": \"t\", \"name\": \"temperature\", \"type\": \"Number\" },\n      { \"object_id\": \"h\", \"name\": \"humidity\",    \"type\": \"Number\" },\n      { \"object_id\": \"p\", \"name\": \"pressure\",    \"type\": \"Number\" },\n      { \"object_id\": \"l\", \"name\": \"ldrRaw\",      \"type\": \"Number\" }\n    ],\n    \"commands\": [\n      { \"name\": \"led\", \"type\": \"command\" }\n    ]\n  }]\n}"
+        }
+      }
+    },
+    {
+      "name": "3. Verificar Entidade no Orion",
+      "request": {
+        "method": "GET",
+        "url": "{{ORION}}/v2/entities/urn:ngsi-ld:DragonCapsule:001",
+        "header": [
+          { "key": "fiware-service",     "value": "dragon" },
+          { "key": "fiware-servicepath", "value": "/" }
+        ],
+        "description": "Confirma que a entidade foi criada. Deve aparecer os atributos temperature, humidity, pressure, ldrRaw."
+      }
+    },
+    {
+      "name": "4. Testar Publicação (simula ESP32)",
+      "request": {
+        "method": "POST",
+        "url": "{{ORION}}/v2/entities/urn:ngsi-ld:DragonCapsule:001/attrs",
+        "header": [
+          { "key": "fiware-service",     "value": "dragon" },
+          { "key": "fiware-servicepath", "value": "/" },
+          { "key": "Content-Type",       "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"temperature\": { \"type\": \"Number\", \"value\": 24.5 },\n  \"humidity\":    { \"type\": \"Number\", \"value\": 55.0 },\n  \"pressure\":    { \"type\": \"Number\", \"value\": 1010.0 },\n  \"ldrRaw\":      { \"type\": \"Number\", \"value\": 1800 }\n}"
+        },
+        "description": "Injeta dados diretamente no Orion pra testar o Python sem precisar do ESP32."
+      }
+    },
+    {
+      "name": "5. Limpeza — Deletar Service Group",
+      "request": {
+        "method": "DELETE",
+        "url": "{{IOTA}}/iot/services/?resource=/iot/d&apikey=dragon2026",
+        "header": [
+          { "key": "fiware-service",     "value": "dragon" },
+          { "key": "fiware-servicepath", "value": "/" }
+        ],
+        "description": "Use se precisar reprovisionar do zero."
+      }
+    },
+    {
+      "name": "5.1 Limpeza — Deletar Dispositivo",
+      "request": {
+        "method": "DELETE",
+        "url": "{{IOTA}}/iot/devices/dragon-esp32-001",
+        "header": [
+          { "key": "fiware-service",     "value": "dragon" },
+          { "key": "fiware-servicepath", "value": "/" }
+        ]
+      }
+    },
+    {
+      "name": "5.2 Limpeza — Deletar Entidade",
+      "request": {
+        "method": "DELETE",
+        "url": "{{ORION}}/v2/entities/urn:ngsi-ld:DragonCapsule:001",
+        "header": [
+          { "key": "fiware-service",     "value": "dragon" },
+          { "key": "fiware-servicepath", "value": "/" }
+        ]
+      }
+    }
+  ]
+}
