@@ -9,7 +9,7 @@
 
 | Nome | RM |
 |---|---|
-| Gustavo Macedo Daniel | — |
+| Gustavo Macedo Daniel | 567594 |
 
 ---
 
